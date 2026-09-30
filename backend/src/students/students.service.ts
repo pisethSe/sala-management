@@ -69,9 +69,9 @@ export class StudentsService {
   }
 
   async getStudent(id: string): Promise<StudentRow | null> {
-    // the list is small, so the cached list serves single lookups too
-    const list = await this.listStudents();
-    return list.find((s) => s.id === id) ?? null;
+    await this.db.ensureTables();
+    const { rows } = await this.db.pool.query(`SELECT ${COLS} FROM students WHERE id = $1`, [id]);
+    return (rows[0] as StudentRow) ?? null;
   }
 
   async createStudent(o: Record<string, unknown>): Promise<StudentRow> {

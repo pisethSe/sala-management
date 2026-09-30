@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { RedisService } from '../redis/redis.service';
+import { ValidationException } from '../common/api-exceptions.filter';
 
 const CACHE_KEY = 'sala:data';
 
@@ -27,7 +28,7 @@ export class SchoolDataService {
   // browser), those students are imported without overwriting existing rows.
   async save(data: Record<string, unknown>): Promise<void> {
     if (!data || typeof data !== 'object' || !(data as { settings?: unknown }).settings) {
-      throw new Error('Invalid data');
+      throw new ValidationException('Invalid data'); // the original API answered 400 here
     }
     if (Array.isArray((data as { students?: unknown }).students) && (data as { students: unknown[] }).students.length) {
       await this.db.importStudents((data as { students: Record<string, unknown>[] }).students);
