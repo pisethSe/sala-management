@@ -2,6 +2,8 @@
 import { useSchool } from '@/components/SchoolProvider';
 import { useDialogs } from '@/components/dialogs';
 import { Badge } from '@/components/ui';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { byId, fmtDate, today, uid } from '@/lib/school';
 
 export default function Notices(){
@@ -18,11 +20,19 @@ export default function Notices(){
   const pin = id => { const pinned = !byId(S.notices,id).pinned; update(D => { byId(D.notices,id).pinned = pinned; }); toast(pinned?'Pinned':'Unpinned'); };
   const remove = id => d.confirm('Delete notice?', 'This notice will be removed for everyone.', 'Delete notice', 'Notice deleted', D => { D.notices = D.notices.filter(n=>n.id!==id); });
   return <>
-    <div className="bar"><p className="grow muted m-0">Pinned notices appear first on everyone's dashboard.</p>{canEdit && <button className="btn btn-primary" onClick={post}>Post notice</button>}</div>
-    {list.length ? list.map(n => <article key={n.id} className={`notice ${n.pinned?'pinned':''}`}>
-      <div className="row"><Badge t={n.audience}/><span className="small muted">{fmtDate(n.date)}{n.pinned?', pinned':''}</span></div>
-      <h3>{n.title}</h3><p>{n.body}</p>
-      {canEdit && <div className="row mt-2.5"><button className="icon-btn" onClick={() => pin(n.id)}>{n.pinned?'Unpin':'Pin to top'}</button><button className="icon-btn del" onClick={() => remove(n.id)}>Delete</button></div>}
-    </article>) : <div className="panel empty">No notices yet. Post one to reach students, parents or staff.</div>}
+    <div className="bar"><p className="grow muted m-0">Pinned notices appear first on everyone's dashboard.</p>{canEdit && <Button onClick={post}>Post notice</Button>}</div>
+    <div className="flex flex-col gap-3">
+      {list.length ? list.map(n => <Card key={n.id} className={n.pinned?'border-l-4 border-l-gold':''}>
+        <CardHeader>
+          <div className="row"><Badge t={n.audience}/><span className="small muted">{fmtDate(n.date)}{n.pinned?', pinned':''}</span></div>
+          <CardTitle>{n.title}</CardTitle>
+        </CardHeader>
+        <CardContent><p className="m-0 max-w-[75ch] whitespace-pre-line">{n.body}</p></CardContent>
+        {canEdit && <CardFooter className="gap-1.5">
+          <Button variant="ghost" size="sm" onClick={() => pin(n.id)}>{n.pinned?'Unpin':'Pin to top'}</Button>
+          <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => remove(n.id)}>Delete</Button>
+        </CardFooter>}
+      </Card>) : <Card><CardContent className="empty">No notices yet. Post one to reach students, parents or staff.</CardContent></Card>}
+    </div>
   </>;
 }

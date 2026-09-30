@@ -2,6 +2,9 @@
 import { useSchool } from '@/components/SchoolProvider';
 import { useDialogs } from '@/components/dialogs';
 import { Badge, DataTable } from '@/components/ui';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TableRow, TableCell } from '@/components/ui/table';
 import { addDays, byId, clsName, fmtDate, iso, stuName, today, uid } from '@/lib/school';
 
 export default function Library(){
@@ -21,18 +24,21 @@ export default function Library(){
   const giveBack = (bid, lid) => { update(D => { const b = byId(D.books,bid); b.loans = b.loans.filter(l=>l.id!==lid); }); toast('Book returned'); };
 
   return <>
-    <div className="bar"><p className="grow muted m-0">{S.books.reduce((a,b)=>a+Number(b.copies),0)} copies across {S.books.length} titles, {loans.length} on loan</p><button className="btn btn-primary" onClick={() => d.bookForm()}>Add book</button></div>
+    <div className="bar"><p className="grow muted m-0">{S.books.reduce((a,b)=>a+Number(b.copies),0)} copies across {S.books.length} titles, {loans.length} on loan</p><Button onClick={() => d.bookForm()}>Add book</Button></div>
     <DataTable heads={['Title','Author','Category','#Copies','#Available','']} empty="The catalogue is empty. Add your first book."
-      rows={S.books.map(b => { const av = b.copies - b.loans.length; return <tr key={b.id}>
-        <td><b>{b.title}</b></td><td>{b.author}</td><td>{b.category}</td><td className="num">{b.copies}</td>
-        <td className="num">{av>0 ? av : <span className="badge badge-bad">None left</span>}</td>
-        <td className="whitespace-nowrap">{av>0 && <button className="btn btn-sm" onClick={() => lend(b.id)}>Lend</button>}<button className="icon-btn" onClick={() => d.bookForm(b.id)}>Edit</button><button className="icon-btn del" onClick={() => remove(b.id)}>Remove</button></td>
-      </tr>; })}/>
-    <div className="panel mt-[18px]"><h3>Books on loan</h3>
-      {loans.length ? <div className="scroll"><table><thead><tr><th>Book</th><th>Borrower</th><th>Lent</th><th>Due back</th><th>Status</th><th></th></tr></thead><tbody>
-        {loans.map(({b,l}) => <tr key={l.id}><td>{b.title}</td><td>{stuName(S,l.studentId)}</td><td>{fmtDate(l.out)}</td><td>{fmtDate(l.due)}</td><td><Badge t={l.due<TODAY?'Overdue':'On loan'}/></td>
-          <td><button className="btn btn-sm" onClick={() => giveBack(b.id, l.id)}>Mark returned</button></td></tr>)}
-      </tbody></table></div> : <p className="muted">No books are on loan.</p>}
-    </div>
+      rows={S.books.map(b => { const av = b.copies - b.loans.length; return <TableRow key={b.id}>
+        <TableCell className="font-semibold text-foreground whitespace-normal">{b.title}</TableCell><TableCell>{b.author}</TableCell><TableCell>{b.category}</TableCell><TableCell className="text-right tabular-nums">{b.copies}</TableCell>
+        <TableCell className="text-right tabular-nums">{av>0 ? av : <Badge variant="destructive">None left</Badge>}</TableCell>
+        <TableCell>{av>0 && <Button variant="outline" size="sm" onClick={() => lend(b.id)}>Lend</Button>}<Button variant="ghost" size="sm" onClick={() => d.bookForm(b.id)}>Edit</Button><Button variant="destructive" size="sm" onClick={() => remove(b.id)}>Remove</Button></TableCell>
+      </TableRow>; })}/>
+    <Card className="mt-4">
+      <CardHeader><CardTitle>Books on loan</CardTitle></CardHeader>
+      <CardContent>
+        {loans.length ? <div className="scroll"><table><thead><tr><th>Book</th><th>Borrower</th><th>Lent</th><th>Due back</th><th>Status</th><th></th></tr></thead><tbody>
+          {loans.map(({b,l}) => <tr key={l.id}><td>{b.title}</td><td>{stuName(S,l.studentId)}</td><td>{fmtDate(l.out)}</td><td>{fmtDate(l.due)}</td><td><Badge t={l.due<TODAY?'Overdue':'On loan'}/></td>
+            <td><Button variant="outline" size="sm" onClick={() => giveBack(b.id, l.id)}>Mark returned</Button></td></tr>)}
+        </tbody></table></div> : <p className="muted">No books are on loan.</p>}
+      </CardContent>
+    </Card>
   </>;
 }

@@ -1,33 +1,23 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSchool } from './SchoolProvider';
 import { Icon } from './ui';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PAGES, ROLES, feeStatus, href, overdueLoans, pageFromPath, unmarkedToday } from '@/lib/school';
+import { cn } from '@/lib/utils';
 
+// Modal. The school context's openModal(title, content) API is unchanged;
+// the shadcn Dialog handles Escape, the backdrop, and focus.
 function Modal(){
   const { modal, closeModal } = useSchool();
-  const body = useRef(null), lastFocus = useRef(null);
-  const open = !!modal;
-  useEffect(() => {
-    if (!open) return;
-    lastFocus.current = document.activeElement;
-    const onKey = e => { if (e.key==='Escape') closeModal(); };
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      const f = lastFocus.current; if (f && document.contains(f)) f.focus();
-    };
-  }, [open, closeModal]);
-  useEffect(() => { const f = body.current?.querySelector('input,select,textarea,button'); f && f.focus(); }, [modal]);
-  if (!modal) return null;
-  return <div className="modal" onClick={e => { if (e.target === e.currentTarget) closeModal(); }}>
-    <div className="dialog" role="dialog" aria-modal="true" aria-labelledby="mtitle">
-      <div className="dhead"><h2 id="mtitle">{modal.title}</h2><button className="x" onClick={closeModal} aria-label="Close">×</button></div>
-      <div className="mbody" ref={body}>{modal.content}</div>
-    </div>
-  </div>;
+  return <Dialog open={!!modal} onOpenChange={open => { if (!open) closeModal(); }}>
+    <DialogContent className="max-w-[calc(100%-2rem)] sm:max-w-[640px] max-h-[90vh] overflow-y-auto gap-4">
+      {modal && <DialogHeader><DialogTitle>{modal.title}</DialogTitle></DialogHeader>}
+      {modal?.content}
+    </DialogContent>
+  </Dialog>;
 }
 
 export default function Shell({ children }){
@@ -42,10 +32,12 @@ export default function Shell({ children }){
   useEffect(() => { if (S && !allowed) router.replace('/'); }, [S, allowed, router]);
   useEffect(() => { if (S) document.title = label + ' – ' + S.settings.school; }, [S, label]);
 
-  if (loadError) return <div className="app"><div className="card" style={{margin:'40px auto', maxWidth:520}}>
-    <h3>Cannot reach the database</h3>
-    <p className="small">{loadError}</p>
-    <p className="small">Check that PostgreSQL is running and that DATABASE_URL in .env.local is correct, then reload.</p>
+  if (loadError) return <div className="app"><div className="mx-auto mt-10 w-full max-w-[520px]">
+    <div className="panel">
+      <h3>Cannot reach the database</h3>
+      <p className="small muted">{loadError}</p>
+      <p className="small muted">Check that the API is running and that DATABASE_URL in .env.local is correct, then reload.</p>
+    </div>
   </div></div>;
   if (!S || !ui) return <div className="app" />;
 
@@ -75,7 +67,7 @@ export default function Shell({ children }){
           </label>
         </div>
       </aside>
-      {sideOpen && <div className="fixed inset-0 bg-[rgba(6,14,28,0.5)] z-30 hidden max-[900px]:block" onClick={() => setSideOpen(false)}></div>}
+      {sideOpen && <div className="scrim" onClick={() => setSideOpen(false)}></div>}
       <div className="main">
         <header className="top">
           <button className="burger" onClick={() => setSideOpen(true)} aria-label="Open menu">
@@ -88,6 +80,6 @@ export default function Shell({ children }){
       </div>
     </div>
     <Modal/>
-    <div className={`toast ${toastMsg.show?'show':''}`} role="status" aria-live="polite">{toastMsg.text}</div>
+    <div className={cn('toast', toastMsg.show && 'show')} role="status" aria-live="polite">{toastMsg.text}</div>
   </>;
 }

@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSchool } from '@/components/SchoolProvider';
 import { Bars } from '@/components/ui';
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { attDates, feeStatus, fmtDate, money, overdueLoans, pct, rateFor, today, unmarkedToday } from '@/lib/school';
 
 export default function Dashboard(){
@@ -41,21 +43,42 @@ export default function Dashboard(){
       <div className="stat"><div className="l">Enrolled students</div><div className="v">{active.length}</div><div className="small muted">{girls} girls and {active.length-girls} boys in {S.classes.length} classes</div></div>
       <div className="stat k"><div className="l">Teaching staff</div><div className="v">{S.teachers.filter(t=>t.status==='Active').length}</div><div className="small muted">1 teacher for every {Math.round(active.length/Math.max(1,S.teachers.length))} students</div></div>
       <div className={`stat ${unmarked.length?'r':''}`}><div className="l">Attendance today</div><div className="v">{pct(todayRate)}</div><div className="small muted">{todayRate==null?`Not taken yet. Last school day was ${pct(lastRate)}.`:`${S.classes.length-unmarked.length} of ${S.classes.length} classes marked`}</div></div>
-      <div className="stat g"><div className="l">Fees collected this term</div><div className="v">{money(paid)}</div><div className="small muted">of {money(due)} billed</div><div className="progress"><i style={{width:`${due?paid/due*100:0}%`}}></i></div></div>
+      <div className="stat g"><div className="l">Fees collected this term</div><div className="v">{money(paid)}</div><div className="small muted">of {money(due)} billed</div><Progress value={due?Math.min(100,paid/due*100):0} className="mt-2 w-full"/></div>
     </div>
     <div className="cols wide-left">
-      <div className="panel"><div className="panel-head"><h3>Attendance, last {dates.length} school days</h3><span className="small muted">Present or late</span></div>
-        {dates.length ? <Bars data={dates.map(d => ({label:new Date(d+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}), value:Math.round(rateFor(S,x=>x===d)*100)}))} fmt={v=>v+'%'}/> : <p className="empty">No attendance recorded yet.</p>}
-      </div>
-      <div className="panel"><h3>Needs attention</h3><ul className="todo">{todos}</ul></div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Attendance, last {dates.length} school days</CardTitle>
+          <CardAction><span className="small muted">Present or late</span></CardAction>
+        </CardHeader>
+        <CardContent>
+          {dates.length ? <Bars data={dates.map(d => ({label:new Date(d+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}), value:Math.round(rateFor(S,x=>x===d)*100)}))} fmt={v=>v+'%'}/> : <p className="empty">No attendance recorded yet.</p>}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle>Needs attention</CardTitle></CardHeader>
+        <CardContent><ul className="todo">{todos}</ul></CardContent>
+      </Card>
     </div>
     <div className="cols">
-      <div className="panel"><div className="panel-head"><h3>Latest notices</h3><Link className="link" href="/notices">All notices</Link></div>
-        <ul className="todo">{notices.length ? notices.map(n => <li key={n.id}><span className={`dot ${n.pinned?'g':''}`}></span><div><b>{n.title}</b><br/><span className="small muted">{fmtDate(n.date)}, for {n.audience.toLowerCase()}</span></div></li>) : <li>No notices.</li>}</ul>
-      </div>
-      <div className="panel"><div className="panel-head"><h3>Coming up</h3><Link className="link" href="/calendar">Open calendar</Link></div>
-        <ul className="todo">{up.length ? up.map(e => <li key={e.id}><span className={`dot ${e.type==='Exam'?'r':e.type==='Holiday'?'g':''}`}></span><div><b>{e.title}</b><br/><span className="small muted">{fmtDate(e.date)}, {e.type.toLowerCase()}</span></div></li>) : <li>No upcoming events.</li>}</ul>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Latest notices</CardTitle>
+          <CardAction><Link className="link" href="/notices">All notices</Link></CardAction>
+        </CardHeader>
+        <CardContent>
+          <ul className="todo">{notices.length ? notices.map(n => <li key={n.id}><span className={`dot ${n.pinned?'g':''}`}></span><div><b>{n.title}</b><br/><span className="small muted">{fmtDate(n.date)}, for {n.audience.toLowerCase()}</span></div></li>) : <li>No notices.</li>}</ul>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Coming up</CardTitle>
+          <CardAction><Link className="link" href="/calendar">Open calendar</Link></CardAction>
+        </CardHeader>
+        <CardContent>
+          <ul className="todo">{up.length ? up.map(e => <li key={e.id}><span className={`dot ${e.type==='Exam'?'r':e.type==='Holiday'?'g':''}`}></span><div><b>{e.title}</b><br/><span className="small muted">{fmtDate(e.date)}, {e.type.toLowerCase()}</span></div></li>) : <li>No upcoming events.</li>}</ul>
+        </CardContent>
+      </Card>
     </div>
   </>;
 }

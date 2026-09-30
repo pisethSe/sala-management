@@ -1,6 +1,8 @@
 'use client';
 import { useSchool } from '@/components/SchoolProvider';
 import { useDialogs } from '@/components/dialogs';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { byId, fmtDate, today, uid } from '@/lib/school';
 
 export default function Calendar(){
@@ -27,19 +29,22 @@ export default function Calendar(){
   const remove = id => d.confirm('Delete event?', `"${byId(S.events,id).title}" will be removed from the calendar.`, 'Delete event', 'Event deleted', D => { D.events = D.events.filter(e=>e.id!==id); });
   return <>
     <div className="bar items-center">
-      <button className="btn" onClick={() => move(-1)} aria-label="Previous month">‹</button>
+      <Button variant="outline" onClick={() => move(-1)} aria-label="Previous month">‹</Button>
       <h2 className="text-[22px] min-w-[190px] text-center">{first.toLocaleDateString('en-GB',{month:'long',year:'numeric'})}</h2>
-      <button className="btn" onClick={() => move(1)} aria-label="Next month">›</button>
-      <button className="btn btn-ghost" onClick={() => setUi({cal:TODAY.slice(0,7)})}>Today</button>
+      <Button variant="outline" onClick={() => move(1)} aria-label="Next month">›</Button>
+      <Button variant="ghost" onClick={() => setUi({cal:TODAY.slice(0,7)})}>Today</Button>
       <div className="grow"></div>
-      {canEdit && <button className="btn btn-primary" onClick={add}>Add event</button>}
+      {canEdit && <Button onClick={add}>Add event</Button>}
     </div>
     <div className="scroll"><div className="cal">{['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(n => <div key={n} className="h">{n}</div>)}{cells}</div></div>
-    <div className="panel mt-[18px]"><h3>This month</h3>
-      {month.length ? <ul className="todo">{month.map(e => <li key={e.id}><span className={`dot ${e.type==='Exam'?'r':e.type==='Holiday'?'g':''}`}></span>
-        <div className="flex-1"><b>{e.title}</b><br/><span className="small muted">{fmtDate(e.date)}, {e.type.toLowerCase()}</span></div>
-        {canEdit && <button className="icon-btn del" onClick={() => remove(e.id)}>Delete</button>}</li>)}</ul>
-      : <p className="muted">Nothing scheduled this month.</p>}
-    </div>
+    <Card className="mt-4">
+      <CardHeader><CardTitle>This month</CardTitle></CardHeader>
+      <CardContent>
+        {month.length ? <ul className="todo">{month.map(e => <li key={e.id}><span className={`dot ${e.type==='Exam'?'r':e.type==='Holiday'?'g':''}`}></span>
+          <div className="flex-1"><b>{e.title}</b><br/><span className="small muted">{fmtDate(e.date)}, {e.type.toLowerCase()}</span></div>
+          {canEdit && <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => remove(e.id)}>Delete</Button>}</li>)}</ul>
+        : <p className="muted">Nothing scheduled this month.</p>}
+      </CardContent>
+    </Card>
   </>;
 }

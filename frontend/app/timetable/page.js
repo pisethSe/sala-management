@@ -1,6 +1,7 @@
 'use client';
 import { useSchool } from '@/components/SchoolProvider';
 import { Options } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DAYS, PERIODS, SUBJECTS, byId, classOpts } from '@/lib/school';
 
 const blank = () => Object.fromEntries(DAYS.map(d => [d, PERIODS.map(() => '')]));
@@ -8,7 +9,7 @@ const blank = () => Object.fromEntries(DAYS.map(d => [d, PERIODS.map(() => '')])
 export default function Timetable(){
   const { S, ui, setUi, update, toast } = useSchool();
   const cls = byId(S.classes, ui.ttClass) ? ui.ttClass : S.classes[0]?.id || '';
-  if (!cls) return <div className="panel empty">Add a class first.</div>;
+  if (!cls) return <Card><CardContent className="empty">Add a class first.</CardContent></Card>;
   const t = S.timetable[cls] || blank();
   const teacherFor = sub => S.teachers.find(x => x.subject===sub)?.name || '';
   const counts = {}; DAYS.forEach(d => t[d].forEach(s => { if (s) counts[s] = (counts[s]||0)+1; }));
@@ -23,8 +24,11 @@ export default function Timetable(){
         <div className="teacher">{teacherFor(t[d][i])}</div>
       </td>)}</tr>)}</tbody>
     </table></div></div>
-    <div className="panel mt-3.5"><h3>Periods per week</h3><div className="tally">
-      {Object.keys(counts).length ? Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => <span key={s}><b>{n}</b>{s}</span>) : <span className="muted">No subjects scheduled.</span>}
-    </div></div>
+    <Card className="mt-4">
+      <CardHeader><CardTitle>Periods per week</CardTitle></CardHeader>
+      <CardContent className="tally">
+        {Object.keys(counts).length ? Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([s,n]) => <span key={s}><b>{n}</b>{s}</span>) : <span className="muted">No subjects scheduled.</span>}
+      </CardContent>
+    </Card>
   </>;
 }

@@ -1,188 +1,268 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-/* Theme tokens (Forest Green & Copper). The colors stay CSS variables so the
-   dark-mode overrides below work with or without the data-theme attribute. */
+@custom-variant dark (&:is(.dark *));
+
+/* ------------------------------------------------------------------ */
+/* Forest Green & Copper — shadcn semantic tokens.                     */
+/* The brand palette lives in the tokens, so every component and       */
+/* utility follows light/dark automatically.                           */
+/* ------------------------------------------------------------------ */
 :root{
+  --background:#EEF3EF;--foreground:#17231D;
+  --card:#FFFFFF;--card-foreground:#17231D;
+  --popover:#FFFFFF;--popover-foreground:#17231D;
+  --primary:#16362A;--primary-foreground:#FFFFFF;
+  --secondary:#F4F7F5;--secondary-foreground:#17231D;
+  --muted:#E7EEE9;--muted-foreground:#5A6F65;
+  --accent:#E1F2E8;--accent-foreground:#16362A;
+  --destructive:#A63A2C;
+  --success:#1D7048;--warning:#865E00;
+  --border:#D8E1DB;--input:#D8E1DB;--ring:#B87333;
+  --chart-1:#16362A;--chart-2:#B87333;--chart-3:#275242;--chart-4:#D69A5F;--chart-5:#A63A2C;
+  --radius:0.625rem;
+  --sidebar:#0D231B;--sidebar-foreground:#C2D2C8;--sidebar-primary:#B87333;--sidebar-primary-foreground:#FFFFFF;
+  --sidebar-accent:#275242;--sidebar-accent-foreground:#FFFFFF;--sidebar-border:#FFFFFF1A;--sidebar-ring:#B87333;
+  /* Legacy aliases kept for class names used across the app (see the
+     component classes below). They point at the same tokens. */
   --navy:#16362A;--navy-2:#0D231B;--navy-3:#275242;--gold:#B87333;--gold-2:#D69A5F;--red:#A63A2C;
-  --bg:#EEF3EF;--surface:#fff;--sunk:#F4F7F5;--ink:#17231D;--muted:#5A6F65;--line:#D8E1DB;--navy-ink:#16362A;
-  --ok:#1D7048;--ok-bg:#E1F2E8;--warn:#865E00;--warn-bg:#FAEFD2;--bad:#A63A2C;--bad-bg:#F8E3DF;--mute-bg:#E7EEE9;
+  --bg:#EEF3EF;--surface:#FFFFFF;--sunk:#F4F7F5;--ink:#17231D;--line:#D8E1DB;--navy-ink:#16362A;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#0A1712;--surface:#122A20;--sunk:#0E211A;--ink:#E6F4EC;--muted:#93A8A0;--line:#264238;--navy-ink:#7EC9A0;
-    --ok:#72D09E;--ok-bg:#12301F;--warn:#E9C15B;--warn-bg:#352A0C;--bad:#E8917E;--bad-bg:#3A2016;--mute-bg:#1B2E24;
+    --background:#0A1712;--foreground:#E6F4EC;
+    --card:#122A20;--card-foreground:#E6F4EC;
+    --popover:#122A20;--popover-foreground:#E6F4EC;
+    --primary:#275242;--primary-foreground:#FFFFFF;
+    --secondary:#0E211A;--secondary-foreground:#E6F4EC;
+    --muted:#1B2E24;--muted-foreground:#93A8A0;
+    --accent:#12301F;--accent-foreground:#E6F4EC;
+    --destructive:#E8917E;
+    --success:#72D09E;--warning:#E9C15B;
+    --border:#264238;--input:#264238;--ring:#D69A5F;
+    --chart-1:#72D09E;--chart-2:#D69A5F;--chart-3:#4E8A6A;--chart-4:#E9C15B;--chart-5:#E8917E;
+    --sidebar:#0D231B;--sidebar-foreground:#C2D2C8;--sidebar-primary:#D69A5F;
+    --sidebar-accent:#275242;--sidebar-accent-foreground:#FFFFFF;--sidebar-border:#FFFFFF1A;--sidebar-ring:#D69A5F;
+    --navy-2:#0D231B;--navy-3:#275242;--red:#E8917E;
+    --bg:#0A1712;--surface:#122A20;--sunk:#0E211A;--ink:#E6F4EC;--line:#264238;--navy-ink:#7EC9A0;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0A1712;--surface:#122A20;--sunk:#0E211A;--ink:#E6F4EC;--muted:#93A8A0;--line:#264238;--navy-ink:#7EC9A0;
-  --ok:#72D09E;--ok-bg:#12301F;--warn:#E9C15B;--warn-bg:#352A0C;--bad:#E8917E;--bad-bg:#3A2016;--mute-bg:#1B2E24;
+  --background:#0A1712;--foreground:#E6F4EC;
+  --card:#122A20;--card-foreground:#E6F4EC;
+  --popover:#122A20;--popover-foreground:#E6F4EC;
+  --primary:#275242;--primary-foreground:#FFFFFF;
+  --secondary:#0E211A;--secondary-foreground:#E6F4EC;
+  --muted:#1B2E24;--muted-foreground:#93A8A0;
+  --accent:#12301F;--accent-foreground:#E6F4EC;
+  --destructive:#E8917E;
+  --success:#72D09E;--warning:#E9C15B;
+  --border:#264238;--input:#264238;--ring:#D69A5F;
+  --chart-1:#72D09E;--chart-2:#D69A5F;--chart-3:#4E8A6A;--chart-4:#E9C15B;--chart-5:#E8917E;
+  --sidebar:#0D231B;--sidebar-foreground:#C2D2C8;--sidebar-primary:#D69A5F;
+  --sidebar-accent:#275242;--sidebar-accent-foreground:#FFFFFF;--sidebar-border:#FFFFFF1A;--sidebar-ring:#D69A5F;
+  --navy-2:#0D231B;--navy-3:#275242;--red:#E8917E;
+  --bg:#0A1712;--surface:#122A20;--sunk:#0E211A;--ink:#E6F4EC;--line:#264238;--navy-ink:#7EC9A0;
 }
 
-/* Maps the tokens to Tailwind colors, so utilities like bg-surface or text-ink
-   resolve to the variable and follow dark mode automatically. */
 @theme inline{
-  --color-bg:var(--bg);
-  --color-surface:var(--surface);
-  --color-sunk:var(--sunk);
-  --color-ink:var(--ink);
+  --color-background:var(--background);
+  --color-foreground:var(--foreground);
+  --color-card:var(--card);
+  --color-card-foreground:var(--card-foreground);
+  --color-popover:var(--popover);
+  --color-popover-foreground:var(--popover-foreground);
+  --color-primary:var(--primary);
+  --color-primary-foreground:var(--primary-foreground);
+  --color-secondary:var(--secondary);
+  --color-secondary-foreground:var(--secondary-foreground);
   --color-muted:var(--muted);
-  --color-line:var(--line);
-  --color-navy:var(--navy);
-  --color-navy-2:var(--navy-2);
-  --color-navy-3:var(--navy-3);
+  --color-muted-foreground:var(--muted-foreground);
+  --color-accent:var(--accent);
+  --color-accent-foreground:var(--accent-foreground);
+  --color-destructive:var(--destructive);
+  --color-success:var(--success);
+  --color-warning:var(--warning);
+  --color-border:var(--border);
+  --color-input:var(--input);
+  --color-ring:var(--ring);
+  --color-chart-1:var(--chart-1);
+  --color-chart-2:var(--chart-2);
+  --color-chart-3:var(--chart-3);
+  --color-chart-4:var(--chart-4);
+  --color-chart-5:var(--chart-5);
+  --color-sidebar:var(--sidebar);
+  --color-sidebar-foreground:var(--sidebar-foreground);
+  --color-sidebar-primary:var(--sidebar-primary);
+  --color-sidebar-primary-foreground:var(--sidebar-primary-foreground);
+  --color-sidebar-accent:var(--sidebar-accent);
+  --color-sidebar-accent-foreground:var(--sidebar-accent-foreground);
+  --color-sidebar-border:var(--sidebar-border);
+  --color-sidebar-ring:var(--sidebar-ring);
+  /* Legacy aliases (same tokens, old names) */
+  --color-bg:var(--background);
+  --color-surface:var(--card);
+  --color-sunk:var(--secondary);
+  --color-ink:var(--foreground);
+  --color-line:var(--border);
+  --color-mute-bg:var(--muted);
+  --color-navy:var(--primary);
+  --color-navy-2:var(--sidebar);
+  --color-navy-3:var(--sidebar-accent);
   --color-navy-ink:var(--navy-ink);
   --color-gold:var(--gold);
   --color-gold-2:var(--gold-2);
-  --color-red:var(--red);
-  --color-ok:var(--ok);
-  --color-ok-bg:var(--ok-bg);
-  --color-warn:var(--warn);
-  --color-warn-bg:var(--warn-bg);
-  --color-bad:var(--bad);
-  --color-bad-bg:var(--bad-bg);
-  --color-mute-bg:var(--mute-bg);
+  --color-red:var(--destructive);
+  /* Fonts: Kantumruy Pro carries the Khmer subset; Bricolage is display. */
+  --font-sans:var(--f-body),'Kantumruy Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-heading:var(--f-display),var(--f-body),system-ui,-apple-system,'Segoe UI',sans-serif;
   --font-body:var(--f-body),'Kantumruy Pro',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --font-display:var(--f-display),var(--f-body),system-ui,-apple-system,'Segoe UI',sans-serif;
+  --radius-sm:calc(var(--radius) * 0.6);
+  --radius-md:calc(var(--radius) * 0.8);
+  --radius-lg:var(--radius);
+  --radius-xl:calc(var(--radius) * 1.4);
+  --radius-2xl:calc(var(--radius) * 1.8);
+  --radius-3xl:calc(var(--radius) * 2.2);
+  --radius-4xl:calc(var(--radius) * 2.6);
 }
 
 @layer base{
-  body{ @apply bg-bg text-ink font-body text-[15px] leading-[1.55]; }
-  h1,h2,h3{ @apply font-display leading-[1.2]; }
-  :focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  * { @apply border-border outline-ring/50; }
+  html { @apply font-sans; }
+  body{ @apply font-body text-[15px] leading-[1.55] bg-background text-foreground; }
+  h1,h2,h3{ @apply font-heading leading-[1.2] tracking-tight; }
   img{ max-width:100%; }
-  input,select,textarea{ @apply bg-surface border border-line rounded-md px-2.5 py-2 min-h-[38px] max-w-full text-ink; }
-  input[type=search]{ min-width:220px; }
+  /* Native selects (forms, filters, timetable) styled to match Input. */
+  select{ @apply min-h-[38px] rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50; }
   table{ @apply border-collapse w-full text-sm; }
-  th{ @apply text-left font-semibold text-muted text-[13px] bg-sunk px-3 py-[9px] border-b border-line whitespace-nowrap; }
-  td{ @apply px-3 py-[9px] border-b border-line align-middle; }
-  tr:last-child td{ border-bottom:0; }
   td.num,th.num{ @apply text-right tabular-nums; }
 }
 
+/* ------------------------------------------------------------------ */
+/* Shared component classes. These back the markup in dialogs.js and   */
+/* pages; they follow the shadcn component aesthetics.                 */
+/* ------------------------------------------------------------------ */
 @layer components{
-  .muted{ @apply text-muted; }
+  .muted{ @apply text-muted-foreground; }
   .small{ @apply text-[13px]; }
-  .link{ @apply bg-none border-0 p-0 text-navy-ink cursor-pointer font-semibold text-left hover:underline; }
-  .field{ @apply flex flex-col gap-1 text-[13px] text-muted; }
-  .field :is(input,select){ @apply text-ink; }
+  .link{ @apply bg-none border-0 p-0 text-navy-ink cursor-pointer font-semibold text-left hover:underline underline-offset-2; }
+  .field{ @apply flex flex-col gap-1.5 text-[13px] text-muted-foreground; }
+  .field :is(input,select){ @apply text-foreground; }
   .bar{ @apply flex flex-wrap gap-2.5 items-end mb-4; }
   .row{ @apply flex flex-wrap gap-2.5 items-center; }
   .grow{ @apply flex-1; }
 
-  .btn{ @apply border border-line rounded-md px-3.5 py-2 cursor-pointer font-medium min-h-[38px] bg-sunk text-ink whitespace-nowrap; }
-  .btn:hover{ filter:brightness(.96); }
-  .btn-primary{ @apply bg-navy text-white border-navy; }
-  .btn-gold{ @apply bg-gold text-[#1B1403] border-gold; }
-  .btn-danger{ @apply bg-red text-white border-red; }
-  .btn-ghost{ @apply bg-transparent; }
-  .btn-sm{ @apply px-2.5 py-1 min-h-[30px] text-[13.5px]; }
-  .icon-btn{ @apply bg-transparent border border-transparent rounded-md px-2 py-1 cursor-pointer text-muted text-[13.5px]; }
-  .icon-btn:hover{ @apply border-line text-ink; }
-  .icon-btn.del:hover{ @apply text-red; }
+  /* Buttons used by dialogs.js (`btn ghost`, `btn primary`, …), styled to
+     match the shadcn Button variants. */
+  .btn{ @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-border bg-background px-3.5 py-2 text-sm font-medium whitespace-nowrap cursor-pointer min-h-[38px] transition-all outline-none select-none hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:translate-y-px disabled:pointer-events-none disabled:opacity-50; }
+  .primary, .btn-primary{ @apply border-transparent bg-primary text-primary-foreground hover:bg-primary/85 hover:text-primary-foreground; }
+  .ghost{ @apply border-transparent bg-transparent text-foreground hover:bg-muted hover:text-foreground; }
+  .danger{ @apply border-transparent bg-destructive/10 text-destructive hover:bg-destructive/20; }
+  .gold{ @apply border-transparent bg-gold text-[#1B1403] hover:bg-gold/85; }
+  .sm{ @apply min-h-[30px] rounded-md px-2.5 py-1 text-[13px]; }
+  .icon-btn{ @apply inline-flex items-center gap-1 rounded-md border border-transparent bg-transparent px-2 py-1 text-[13px] text-muted-foreground cursor-pointer transition-all outline-none hover:bg-muted hover:text-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50; }
+  .icon-btn.del:hover{ @apply bg-destructive/10 text-destructive; }
 
-  .badge{ @apply inline-block rounded-full px-2.5 py-px text-[12.5px] font-semibold whitespace-nowrap; }
-  .badge-ok{ @apply bg-ok-bg text-ok; }
-  .badge-warn{ @apply bg-warn-bg text-warn; }
-  .badge-bad{ @apply bg-bad-bg text-bad; }
-  .badge-mute{ @apply bg-mute-bg text-muted; }
-  .badge-navy{ @apply bg-navy text-white; }
-
-  .panel{ @apply bg-surface border border-line rounded-[10px] px-5 py-[18px]; }
-  .panel h3{ @apply text-[16.5px] mb-3; }
-  .panel-head{ @apply flex items-center justify-between gap-2.5 mb-3; }
-  .panel-head h3{ @apply mb-0; }
-  .tablewrap{ @apply bg-surface border border-line rounded-[10px] overflow-hidden; }
+  /* Panels and surfaces (dialogs.js uses .panel directly). */
+  .panel{ @apply flex flex-col gap-3 rounded-xl bg-card text-card-foreground ring-1 ring-foreground/10 px-5 py-4; }
+  .panel h3{ @apply font-heading text-base font-medium tracking-tight; }
+  .panel-head{ @apply flex items-center justify-between gap-2.5; }
+  .tablewrap{ @apply rounded-xl bg-card ring-1 ring-foreground/10 overflow-hidden; }
   .scroll{ @apply overflow-x-auto; }
-  .empty{ @apply px-7 py-7 text-center text-muted; }
+  .empty{ @apply px-6 py-10 text-center text-sm text-muted-foreground; }
 
-  .cols{ @apply grid gap-[18px] mt-[18px] grid-cols-[repeat(auto-fit,minmax(320px,1fr))]; }
+  .cols{ @apply grid gap-4 mt-4 grid-cols-[repeat(auto-fit,minmax(320px,1fr))]; }
   .cols-wide-left{ @apply grid-cols-[minmax(0,1.6fr)_minmax(280px,1fr)] max-[900px]:grid-cols-1; }
-  .stats{ @apply grid gap-3.5 grid-cols-[repeat(auto-fit,minmax(210px,1fr))] mt-[18px]; }
-  .stat{ @apply bg-surface border border-line rounded-[10px] px-[18px] py-4 border-t-4 border-t-navy; }
+  .stats{ @apply grid gap-4 grid-cols-[repeat(auto-fit,minmax(210px,1fr))] mt-4; }
+  .stat{ @apply flex flex-col rounded-xl bg-card text-card-foreground ring-1 ring-foreground/10 border-t-4 border-t-primary px-4 py-4; }
   .stat.g{ @apply border-t-gold; }
-  .stat.r{ @apply border-t-red; }
+  .stat.r{ @apply border-t-destructive; }
   .stat.k{ @apply border-t-navy-3; }
-  .stat .v{ @apply font-display text-[34px] font-bold leading-[1.1] my-1; }
-  .stat .l{ @apply text-muted text-sm; }
-  .progress{ @apply h-2 bg-mute-bg rounded-full overflow-hidden mt-2; }
-  .progress i{ @apply block h-full bg-gold rounded-full; }
+  .stat .v{ @apply font-display text-[32px] font-bold leading-[1.1] tracking-tight my-1; }
+  .stat .l{ @apply text-muted-foreground text-sm; }
 
   .todo{ @apply list-none m-0 p-0; }
-  .todo li{ @apply flex gap-2.5 items-start py-2.5 border-b border-line; }
+  .todo li{ @apply flex gap-3 items-start py-2.5 border-b border-border; }
   .todo li:last-child{ border-bottom:0; }
-  .dot{ @apply w-[9px] h-[9px] rounded-full mt-[7px] flex-none bg-navy-ink; }
-  .dot.r{ @apply bg-red; }
+  .dot{ @apply size-[9px] rounded-full mt-[7px] flex-none bg-primary; }
+  .dot.r{ @apply bg-destructive; }
   .dot.g{ @apply bg-gold; }
-  .dot.ok{ @apply bg-ok; }
+  .dot.ok{ @apply bg-success; }
 
-  .note{ @apply bg-warn-bg text-warn px-3.5 py-2.5 rounded-lg mb-3.5; }
-  .tally{ @apply flex gap-[18px] flex-wrap text-sm items-baseline; }
-  .tally b{ @apply font-display text-xl mr-1; }
+  .tally{ @apply flex gap-4 flex-wrap text-sm items-baseline; }
+  .tally b{ @apply font-display text-xl mr-1 font-semibold; }
 
-  .cards{ @apply grid gap-3.5 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]; }
-  .ccard{ @apply bg-surface border border-line rounded-[10px] p-[18px] flex flex-col gap-1.5; }
-  .ccard h3{ @apply text-xl; }
-  .ccard .actions{ @apply mt-auto pt-2.5 flex gap-1.5 flex-wrap; }
-
-  .seg{ @apply inline-flex border border-line rounded-[7px] overflow-hidden; }
-  .seg button{ @apply border-0 bg-surface px-3 py-[5px] cursor-pointer min-w-[74px] text-[13.5px]; }
-  .seg button + button{ border-left:1px solid var(--line); }
-  .seg button[aria-pressed="true"].P{ @apply bg-ok text-white; }
+  /* Attendance segment control. Native buttons keep the exact mark()
+     workflow; pressed states use the brand tokens. */
+  .seg{ @apply inline-flex rounded-lg border border-border overflow-hidden; }
+  .seg button{ @apply border-0 bg-background px-3 py-[5px] cursor-pointer min-w-[74px] text-[13px] transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50; }
+  .seg button + button{ border-left:1px solid var(--border); }
+  .seg button[aria-pressed="true"].P{ @apply bg-success text-white; }
   .seg button[aria-pressed="true"].L{ @apply bg-gold text-[#1B1403]; }
-  .seg button[aria-pressed="true"].A{ @apply bg-red text-white; }
+  .seg button[aria-pressed="true"].A{ @apply bg-destructive text-white; }
 
   .tt td{ @apply p-1.5; }
-  .tt select{ @apply w-full min-w-[120px] text-[13.5px]; }
-  .tt .teacher{ @apply text-xs text-muted pt-0.5 px-1 min-h-[18px]; }
-  .tt th.period{ @apply bg-navy text-white; }
+  .tt select{ @apply w-full min-w-[120px] text-[13px]; }
+  .tt .teacher{ @apply text-xs text-muted-foreground pt-0.5 px-1 min-h-[18px]; }
+  .tt th.period{ @apply bg-primary text-primary-foreground border-primary; }
 
-  .notice{ @apply bg-surface border border-line rounded-[10px] px-[18px] py-4 mb-3; }
-  .notice.pinned{ @apply border-l-4 border-l-gold; }
-  .notice h3{ @apply text-[17px] mt-1 mb-1.5; }
-  .notice p{ @apply m-0 max-w-[75ch] whitespace-pre-line; }
-
-  .cal{ @apply grid grid-cols-[repeat(7,minmax(90px,1fr))] border border-line rounded-[10px] overflow-hidden bg-line gap-px min-w-[640px]; }
-  .cal .h{ @apply bg-navy text-white p-2 text-[13px] font-semibold; }
-  .cal .d{ @apply bg-surface min-h-24 p-1.5 text-[13px]; }
-  .cal .d.x{ @apply bg-sunk; }
+  .cal{ @apply grid grid-cols-[repeat(7,minmax(90px,1fr))] border border-border rounded-xl overflow-hidden bg-border gap-px min-w-[640px]; }
+  .cal .h{ @apply bg-primary text-primary-foreground p-2 text-[13px] font-semibold; }
+  .cal .d{ @apply bg-card min-h-24 p-1.5 text-[13px]; }
+  .cal .d.x{ @apply bg-muted/40; }
   .cal .n{ @apply inline-block font-semibold mb-1; }
-  .cal .d.today .n{ @apply bg-red text-white rounded-full px-[7px]; }
-  .ev{ @apply block rounded px-1.5 mt-[3px] text-xs leading-[1.5] whitespace-nowrap overflow-hidden text-ellipsis bg-mute-bg; }
-  .ev.Exam{ @apply bg-bad-bg text-bad; }
-  .ev.Holiday{ @apply bg-warn-bg text-warn; }
-  .ev.Event{ @apply bg-navy text-white; }
-  .ev.Meeting{ @apply bg-ok-bg text-ok; }
+  .cal .d.today .n{ @apply bg-primary text-primary-foreground rounded-full px-[7px]; }
+  .ev{ @apply block rounded-md px-1.5 mt-[3px] text-xs leading-[1.5] truncate bg-muted text-foreground; }
+  .ev.Exam{ @apply bg-destructive/10 text-destructive; }
+  .ev.Holiday{ @apply bg-warning/15 text-warning; }
+  .ev.Event{ @apply bg-primary text-primary-foreground; }
+  .ev.Meeting{ @apply bg-success/15 text-success; }
 
-  .score{ @apply w-[84px] text-right; }
-  .score.bad{ @apply border-red; }
-
-  .grid-form{ @apply grid grid-cols-2 gap-x-3.5 gap-y-3 max-[900px]:grid-cols-1; }
-  .grid-form label{ @apply flex flex-col gap-1 text-[13px] text-muted; }
-  .grid-form label :is(input,select,textarea){ @apply text-ink w-full; }
-  .grid-form .wide{ grid-column:1/-1; }
   .factions{ @apply flex justify-end gap-2 mt-1.5; }
-  .kv{ @apply grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-x-[18px] gap-y-2.5 mb-4; }
-  .kv div span{ @apply block text-[12.5px] text-muted; }
+  .kv{ @apply grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-x-4 gap-y-2.5 mb-4; }
+  .kv div span{ @apply block text-xs text-muted-foreground mb-0.5; }
 
-  .hello{ @apply flex flex-wrap justify-between gap-3 items-end bg-navy text-white rounded-xl px-[26px] py-6 relative overflow-hidden; }
-  .hello::after{ content:""; position:absolute; right:-40px; top:-40px; width:180px; height:180px; border-radius:50%; border:26px solid var(--gold); }
-  .hello::before{ content:""; position:absolute; right:120px; bottom:-26px; width:52px; height:52px; border-radius:50%; background:var(--red); }
-  .hello h2{ @apply font-bold max-w-[30ch] text-[clamp(22px,3vw,30px)]; }
-  .hello p{ @apply m-0 mb-1.5 text-[#B9C6E2]; }
+  /* App shell: sidebar uses the shadcn sidebar tokens; the 4px copper edge
+     and the copper active bar are the brand's signature. */
+  .app{ @apply grid grid-cols-[252px_minmax(0,1fr)] min-h-screen max-[900px]:grid-cols-1; }
+  .side{ @apply bg-sidebar text-sidebar-foreground sticky top-0 h-screen overflow-y-auto flex flex-col border-r-4 border-gold z-40 max-[900px]:fixed max-[900px]:left-0 max-[900px]:top-0 max-[900px]:w-[264px] max-[900px]:-translate-x-[105%] max-[900px]:transition-transform; }
+  .side.open{ @apply max-[900px]:translate-x-0; }
+  .brand{ @apply flex gap-3 items-center pt-[22px] px-5 pb-[18px]; }
+  .mark{ @apply size-[42px] rounded-lg bg-gold text-sidebar grid place-items-center text-2xl font-semibold flex-none; }
+  .bname{ @apply font-heading font-bold text-white text-[17px] leading-[1.2]; }
+  .bsub{ @apply text-xs text-sidebar-foreground/60; }
+  nav{ @apply px-3 pb-4 pt-1 flex-1; }
+  .ngroup{ @apply text-xs text-sidebar-foreground/50 mt-4 mx-2.5 mb-1.5; }
+  nav a{ @apply flex items-center gap-3 px-2.5 py-2 rounded-lg text-inherit no-underline text-[14px] transition-colors; }
+  nav a:hover{ @apply bg-white/5 text-white; }
+  nav a.on{ @apply bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_3px_0_0_var(--sidebar-primary)]; }
+  nav a.on svg{ @apply text-gold-2; }
+  nav svg{ @apply size-[18px] flex-none; }
+  .count{ @apply ml-auto bg-destructive text-white text-[11.5px] rounded-full px-[7px] leading-[19px] font-semibold; }
+  .side-foot{ @apply px-5 pt-3.5 pb-5 border-t border-sidebar-border text-[13px]; }
+  .side-foot select{ @apply w-full mt-1.5 bg-sidebar-accent border border-sidebar-border text-white rounded-md px-2 py-[7px] outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50; }
+  .top{ @apply sticky top-0 z-20 bg-card border-b border-border flex items-center gap-3.5 px-7 py-3.5 max-[900px]:px-4 max-[900px]:py-3; }
+  .top h1{ @apply text-[22px] font-bold; }
+  .top .date{ @apply ml-auto text-muted-foreground text-sm max-[900px]:hidden; }
+  .burger{ @apply hidden border border-border bg-card rounded-md size-[38px] items-center justify-center cursor-pointer max-[900px]:inline-flex; }
+  .view{ @apply px-7 pt-6 pb-[60px] max-w-[1320px] max-[900px]:px-4 max-[900px]:pt-[18px] max-[900px]:pb-[50px]; }
+  .scrim{ @apply fixed inset-0 bg-black/50 z-30 hidden max-[900px]:block; }
+
+  /* Dashboard hero. The copper ring + dot are the brand's one flourish. */
+  .hello{ @apply flex flex-wrap justify-between gap-3 items-end bg-primary text-primary-foreground rounded-xl px-6 py-6 relative overflow-hidden; }
+  .hello::after{ content:""; position:absolute; right:-40px; top:-40px; width:180px; height:180px; border-radius:50%; border:26px solid var(--gold); opacity:.9; }
+  .hello::before{ content:""; position:absolute; right:120px; bottom:-26px; width:52px; height:52px; border-radius:50%; background:var(--destructive); opacity:.85; }
+  .hello h2{ @apply font-heading font-bold max-w-[30ch] text-[clamp(22px,3vw,30px)] tracking-tight; }
+  .hello p{ @apply m-0 mb-1.5 text-primary-foreground/70; }
   .hello .term{ @apply relative z-[1] bg-white/10 rounded-lg px-3 py-1.5 text-sm mr-[150px] max-[900px]:mr-0; }
   @media (max-width:900px){
     .hello::after{ width:120px; height:120px; border-width:18px; right:-50px; }
     .hello::before{ display:none; }
   }
 
-  .modal{ @apply fixed inset-0 bg-[rgba(6,14,28,0.6)] grid place-items-center p-4 z-[100]; }
-  .dialog{ @apply bg-surface rounded-xl w-[min(640px,100%)] max-h-[90vh] overflow-auto border-t-[5px] border-t-gold; }
-  .dhead{ @apply flex justify-between items-center px-5 py-4 border-b border-line sticky top-0 bg-surface z-[1]; }
-  .dhead h2{ @apply text-[19px]; }
-  .x{ @apply border-0 bg-transparent text-[26px] leading-none cursor-pointer text-muted; }
-  .mbody{ @apply px-5 pt-[18px] pb-5; }
-
-  .toast{ @apply fixed bottom-[22px] left-1/2 bg-navy-2 text-white px-[18px] py-2.5 rounded-lg opacity-0 pointer-events-none z-[200] border-l-4 border-l-gold text-sm duration-200; transform:translate(-50%,20px); }
+  .toast{ @apply fixed bottom-6 left-1/2 bg-sidebar text-sidebar-foreground px-4 py-2.5 rounded-lg shadow-lg opacity-0 pointer-events-none z-[200] border-l-4 border-l-gold text-sm duration-200; transform:translate(-50%,20px); }
   .toast.show{ opacity:1; pointer-events:auto; transform:translate(-50%,0); }
 }
 
