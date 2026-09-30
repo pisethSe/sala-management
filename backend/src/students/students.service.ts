@@ -74,7 +74,7 @@ export class StudentsService {
     return (rows[0] as StudentRow) ?? null;
   }
 
-  async createStudent(o: Record<string, unknown>): Promise<StudentRow> {
+  async createStudent(o: Record<string, unknown> = {}): Promise<StudentRow> {
     const s = await this.clean(o);
     await this.db.ensureTables();
     const client = await this.db.pool.connect();
@@ -104,7 +104,7 @@ export class StudentsService {
     }
   }
 
-  async updateStudent(id: string, o: Record<string, unknown>): Promise<StudentRow | null> {
+  async updateStudent(id: string, o: Record<string, unknown> = {}): Promise<StudentRow | null> {
     const s = await this.clean(o);
     await this.db.ensureTables();
     const { rows } = await this.db.pool.query(
