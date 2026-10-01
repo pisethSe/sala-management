@@ -18,7 +18,10 @@ try {
 // /api/data, /api/students, /api/students/:id and /api/health.
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  // Lock CORS to the frontend origins in production (CORS_ORIGIN, comma-separated).
+  // Unset (or "true") reflects the request origin, as in local development.
+  const corsOrigin = process.env.CORS_ORIGIN;
+  app.enableCors(corsOrigin && corsOrigin !== 'true' ? { origin: corsOrigin.split(',') } : undefined);
   app.setGlobalPrefix('api');
   const port = Number(process.env.PORT) || 3001;
   await app.listen(port);
