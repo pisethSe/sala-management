@@ -3,10 +3,15 @@
 School management app for Sala Secondary School (Cambodia): students, teachers, classes, attendance, exams and grades, timetable, fees and payments, library, notices, calendar, reports and settings. Theme is Forest Green & Copper, with Khmer-friendly fonts.
 
 ## Stack
-- **Frontend** (`frontend/`): Next.js 16 (App Router, Turbopack), React 19, plain JavaScript, Tailwind CSS v4.
-- **Backend** (`backend/`): NestJS (TypeScript) REST API, Redis cache, `pg` for PostgreSQL.
+- **Frontend** (`frontend/`): Next.js 16 (App Router, Turbopack), React 19, plain JavaScript, Tailwind CSS v4, shadcn/ui (base-nova, JSX components in `components/ui/`).
+- **Backend** (`backend/`): NestJS (TypeScript) REST API, Redis cache, `pg` for PostgreSQL, Supabase Auth JWT verification.
 - **Deployment**: `docker compose up --build` (frontend, backend, Redis). Copy `.env.example` to `.env` first.
-- Commands: `npm run dev` (frontend, port 3000), `npm run start:dev` (backend, port 3001), `npm run db:init` (backend; creates the tables).
+- Commands: `npm run dev` (frontend, port 3000), `npm run start:dev` (backend, port 3001), `npm run db:init` (backend; creates the tables and enables RLS).
+
+## Auth
+- Supabase Auth. The frontend signs in/up via `@supabase/ssr`'s browser client (`lib/supabase/client.js`, cookie session); `AuthProvider` (`components/AuthProvider.js`) holds the session and renders the app only when signed in — the login screen is `components/LoginScreen.js`.
+- Every API call carries `Authorization: Bearer <access_token>` (`lib/api.js`). The NestJS `JwtAuthGuard` (global, `auth/jwt.guard.ts`) verifies the ES256 signature against the project's JWKS (`SUPABASE_URL` + `/auth/v1/.well-known/jwks.json`); `SUPABASE_JWT_SECRET` enables the legacy HS256 path. Only `GET /api/health` is `@Public()`.
+- Roles (Admin/Teacher/Accountant) come from the JWT's `app_metadata.role` — set per user in the Supabase dashboard. Missing role defaults to Admin. Shell feeds it into SchoolProvider through the existing `setRole` (localStorage `sala-sms-v1-role`); the sidebar footer shows the email, role badge and a Sign out button.
 
 ## Frontend (`frontend/`)
 - Every page is a client component. Fonts come from `next/font/google`: Kantumruy Pro (`--f-body`, includes the Khmer subset) and Bricolage Grotesque (`--f-display`).
@@ -49,7 +54,8 @@ School management app for Sala Secondary School (Cambodia): students, teachers, 
 - Grade letters: A 85+, B 70–84, C 55–69, D 40–54, F below 40. The pass mark is in settings (default 40).
 
 ## Open items
-- There is no login or authentication yet. Roles only switch in the UI. Add auth before deploying anywhere public.
-- Row Level Security (RLS) is off on `students` and `school_data`. The API connects as `postgres`, which bypasses RLS. Consider enabling RLS with no policies if the Data API is ever exposed with the publishable key.
+- **RLS is enabled** on `students` and `school_data` with no policies: the API connects as `postgres` (bypasses RLS), and the Supabase Data API is denied. Do not add permissive policies unless the publishable key is deliberately exposed.
+- Roles come from `app_metadata.role` in the JWT. When creating users, set the role in the dashboard (Authentication → Users → edit → Raw user JSON → `"app_metadata": {"role": "..."}`) or users default to Admin.
+- Consider API-level RBAC later: the guard already exposes `req.user.role`; endpoints currently rely on the UI's role gating.
 - Other modules (teachers, classes, attendance, grades, fees, library, notices, calendar, timetable) still live in the single `school_data` JSONB document. Saves are last-write-wins across users. The same pattern as students could split them out one module at a time.
 - Make sure `.env*.local` stays out of commits; the root `.gitignore` covers it.

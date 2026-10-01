@@ -1,4 +1,5 @@
 import { Bricolage_Grotesque, Kantumruy_Pro } from 'next/font/google';
+import AuthProvider from '@/components/AuthProvider';
 import SchoolProvider from '@/components/SchoolProvider';
 import Shell from '@/components/Shell';
 import './globals.css';
@@ -15,9 +16,12 @@ export default function RootLayout({ children }){
   return (
     <html lang="en" className={`${body.variable} ${display.variable}`}>
       <body>
-        <SchoolProvider>
-          <Shell>{children}</Shell>
-        </SchoolProvider>
+        {/* The school data loads only after sign-in (AuthProvider gates it). */}
+        <AuthProvider>
+          <SchoolProvider>
+            <Shell>{children}</Shell>
+          </SchoolProvider>
+        </AuthProvider>
       </body>
     </html>
   );

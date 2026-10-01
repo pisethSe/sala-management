@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useSchool } from './SchoolProvider';
-import { Icon } from './ui';
+import { useAuth } from './AuthProvider';
+import { Icon, Badge } from './ui';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PAGES, ROLES, feeStatus, href, overdueLoans, pageFromPath, unmarkedToday } from '@/lib/school';
 import { cn } from '@/lib/utils';
@@ -22,12 +23,15 @@ function Modal(){
 
 export default function Shell({ children }){
   const { S, ui, role, setRole, toast, toastMsg, closeModal, loadError } = useSchool();
+  const { session, user, role: authRole, signOut } = useAuth();
   const path = usePathname(), router = useRouter();
   const [sideOpen, setSideOpen] = useState(false);
   const cur = pageFromPath(path);
   const allowed = ROLES[role].includes(cur) && PAGES.some(p => p[0]===cur);
   const label = PAGES.find(x => x[0]===cur)?.[1] || 'Dashboard';
 
+  // The signed-in user's role (from the JWT's app_metadata) drives access.
+  useEffect(() => { if (session) setRole(authRole); }, [session, authRole, setRole]);
   useEffect(() => { setSideOpen(false); closeModal(); }, [path, closeModal]);
   useEffect(() => { if (S && !allowed) router.replace('/'); }, [S, allowed, router]);
   useEffect(() => { if (S) document.title = label + ' – ' + S.settings.school; }, [S, label]);
@@ -60,11 +64,12 @@ export default function Shell({ children }){
         </div>
         <nav>{nav}</nav>
         <div className="side-foot">
-          <label>Signed in as
-            <select aria-label="Role" value={role} onChange={e => { setRole(e.target.value); toast('Viewing as ' + e.target.value); }}>
-              <option>Admin</option><option>Teacher</option><option>Accountant</option>
-            </select>
-          </label>
+          <div className="text-sidebar-foreground/60">Signed in as</div>
+          <div className="small text-white truncate" title={user?.email}>{user?.email}</div>
+          <div className="row mt-1.5">
+            <Badge t={role}/>
+            <button className="icon-btn" onClick={() => signOut()}>Sign out</button>
+          </div>
         </div>
       </aside>
       {sideOpen && <div className="scrim" onClick={() => setSideOpen(false)}></div>}

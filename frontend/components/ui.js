@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 
 // Status → Badge variant. Soft overlays follow the nova style; brand tokens
 // carry the color.
-const BADGE = {Paid:'success',Active:'success','On loan':'success',Partial:'warning',Unpaid:'warning',Overdue:'destructive',Inactive:'outline',Graduated:'outline',Transferred:'outline',Students:'secondary',Parents:'warning',Staff:'success',Everyone:'outline'};
+const BADGE = {Paid:'success',Active:'success','On loan':'success',Partial:'warning',Unpaid:'warning',Overdue:'destructive',Inactive:'outline',Graduated:'outline',Transferred:'outline',Students:'secondary',Parents:'warning',Staff:'success',Everyone:'outline',Admin:'default',Teacher:'secondary',Accountant:'secondary'};
 export const Badge = ({ t }) => <BadgeUi variant={BADGE[t]||'outline'}>{t}</BadgeUi>;
 
 export const LetterBadge = ({ x }) => x==null||x==='' ? <span className="muted">—</span>

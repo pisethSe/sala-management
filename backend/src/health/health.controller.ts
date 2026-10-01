@@ -1,8 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
+import { Public } from '../auth/public.decorator';
 import { RedisService } from '../redis/redis.service';
 import { DatabaseService } from '../database/database.service';
 
-// GET /api/health: used by the Docker healthcheck and quick diagnostics.
+// GET /api/health: public — used by the Docker healthcheck and quick diagnostics.
 @Controller('health')
 export class HealthController {
   constructor(
@@ -10,6 +11,7 @@ export class HealthController {
     private readonly db: DatabaseService,
   ) {}
 
+  @Public()
   @Get()
   async health() {
     const redisUp = await this.redis.ping();
