@@ -54,6 +54,15 @@ For instant sign-in (no email roundtrip), either turn off "Confirm email" in
 Supabase (Authentication → Sign In → Providers → Email) or create users with
 auto-confirm in Authentication → Users.
 
+## Tests
+
+```bash
+cd backend  && npm test     # 47 Jest unit tests: validation, CRUD, JWT guard (real ES256 verification), document handling
+cd frontend && npm test     # 36 Vitest unit tests: fee status, grade letters, attendance/averages, selectors, API helper
+```
+
+Coverage: `cd backend && npm run test:cov`.
+
 ## Environment
 
 - `DATABASE_URL` — Supabase PostgreSQL connection string (Session pooler `:5432` for long-running servers, Transaction pooler `:6543` for serverless). Special characters in the password must be URL-encoded.
