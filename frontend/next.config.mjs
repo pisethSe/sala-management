@@ -1,22 +1,13 @@
 /** @type {import('next').NextConfig} */
-
-// Security headers applied to every response. A strict CSP needs per-request
-// nonces (middleware) to work with Next's inline hydration scripts; the
-// headers below are the safe, high-value baseline.
-const securityHeaders = [
-  { key: 'X-Frame-Options', value: 'DENY' },
-  { key: 'X-Content-Type-Options', value: 'nosniff' },
-  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-  { key: 'X-DNS-Prefetch-Control', value: 'on' },
-];
-
+// The app is 100% client-side (no API routes, no SSR data fetching), so it
+// ships as a fully static site — hosted on a CDN (Render static site), it
+// never sleeps and needs no Node server in production.
+// The API, Supabase Auth and PostgreSQL do all the server work.
 const nextConfig = {
-  // Produces .next/standalone for the Docker image.
-  output: 'standalone',
-  async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }];
-  },
+  output: 'export',
+  // Each route exports as a directory (out/fees/index.html) so direct loads
+  // and refreshes on sub-routes resolve on any static host.
+  trailingSlash: true,
 };
 
 export default nextConfig;

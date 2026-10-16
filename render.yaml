@@ -1,13 +1,12 @@
 # Render Blueprint — Sala School Management
 #
 # Deploys both services from this repo in one apply:
-#   - sala-api       NestJS API   (backend/)
-#   - sala-frontend  Next.js UI   (frontend/)
+#   - sala-api        NestJS API       (backend/)  — Node web service
+#   - sala-management Next.js UI       (frontend/) — static site (CDN, never sleeps)
 #
 # Deploy: Render dashboard → "New +" → Blueprint → connect pisethSe/sala-management → Apply.
 # You will be asked to fill the `sync: false` secrets (DATABASE_URL and the
-# Supabase publishable key) during apply — the exact values are in README.md
-# under "Render deployment".
+# Supabase publishable key) during apply — see README.md → "Render deployment".
 
 services:
   # ------------------------- API (NestJS + Redis cache) -------------------------
@@ -28,17 +27,18 @@ services:
         value: https://akcehyzvupivjiwqgclu.supabase.co
       # Lock CORS to the frontend origin (must match the frontend service URL below).
       - key: CORS_ORIGIN
-        value: https://sala-frontend.onrender.com
+        value: https://sala-management.onrender.com
       # Optional: set REDIS_URL (a Render Key Value or Upstash instance) to enable
       # caching. Without it the API serves straight from PostgreSQL — everything works.
 
-  # ------------------------- Frontend (Next.js + Tailwind + shadcn/ui) -------------------------
+  # ------------------------- Frontend (Next.js static export) -------------------------
   - type: web
-    name: sala-frontend
-    runtime: node
+    name: sala-management
+    runtime: static
     rootDir: frontend
     buildCommand: npm ci && npm run build
-    startCommand: npm start
+    staticPublishPath: out
+    # The app is 100% client-side: static hosting means no cold starts, ever.
     envVars:
       # Public URL of the API service above — baked into the browser bundle at build time.
       # If Render renames the service (name taken), update this value and redeploy.
@@ -50,3 +50,17 @@ services:
         sync: false
       - key: NEXT_TELEMETRY_DISABLED
         value: "1"
+    headers:
+      # Security headers (a static site can't set them from next.config).
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=()

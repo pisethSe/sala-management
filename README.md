@@ -65,20 +65,27 @@ Coverage: `cd backend && npm run test:cov`.
 
 ## Render deployment (recommended)
 
-A `render.yaml` Blueprint is included — it deploys both services from this repo in one apply.
+A `render.yaml` Blueprint is included — it deploys both services from this repo in one apply:
+
+- **`sala-api`** — Node web service (the NestJS API)
+- **`sala-management`** — **static site** (the frontend is 100% client-side, so it ships as a CDN-hosted export: never sleeps, no cold starts)
+
+Manual setup instead of the Blueprint:
+- **Frontend**: New → **Static Site** → root directory `frontend` → build `npm install && npm run build` → publish directory `out`. Add `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` as build-time env vars, plus the four security headers (see `render.yaml`).
+- **Backend**: New → **Web Service** → root directory `backend` → build `npm install && npm run build` → start `npm start` → health check `/api/health`. Env vars: `DATABASE_URL`, `SUPABASE_URL`, `CORS_ORIGIN` (the frontend's URL).
 
 1. Push this repo to GitHub (already done: `pisethSe/sala-management`).
-2. In [Render](https://dashboard.render.com): **New + → Blueprint** → connect the repo → Render reads `render.yaml`.
+2. In [Render](https://dashboard.render.com): **New + → Blueprint** (or manual per above) → connect the repo.
 3. Fill the two `sync: false` secrets when prompted:
    - **sala-api → `DATABASE_URL`**: the Supabase session-pooler URL (same as `backend/.env.local`):
      `postgresql://postgres.akcehyzvupivjiwqgclu:<url-encoded-password>@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres`
-   - **sala-frontend → `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`**: the publishable key from Supabase → Settings → API.
-4. **Apply** → Render builds and starts both services (the API's health check: `/api/health`).
+   - **sala-management → `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`**: the publishable key from Supabase → Settings → API.
+4. **Apply** → the API health check: `/api/health`.
 
 Notes:
-- The services are wired together: the frontend's `NEXT_PUBLIC_API_URL` points at `https://sala-api.onrender.com` and the API's `CORS_ORIGIN` at `https://sala-frontend.onrender.com`. If Render renames a service (name taken), update the matching value and redeploy.
+- The services are wired together: the frontend's `NEXT_PUBLIC_API_URL` points at `https://sala-api.onrender.com` and the API's `CORS_ORIGIN` at `https://sala-management.onrender.com`. If Render renames a service (name taken), update the matching value and redeploy.
 - **Redis is optional**: without `REDIS_URL` the API serves straight from PostgreSQL. To enable caching, create a Render **Key Value** (or Upstash) instance and set `REDIS_URL` on the API.
-- Free plans spin down after ~15 min idle — the first request after a nap takes 30–60s while the services wake.
+- The free **API** plan spins down after ~15 min idle — the first request after a nap takes 30–60s. The static frontend **never sleeps**.
 
 ## Environment
 
