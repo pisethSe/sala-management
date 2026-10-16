@@ -63,6 +63,23 @@ cd frontend && npm test     # 36 Vitest unit tests: fee status, grade letters, a
 
 Coverage: `cd backend && npm run test:cov`.
 
+## Render deployment (recommended)
+
+A `render.yaml` Blueprint is included — it deploys both services from this repo in one apply.
+
+1. Push this repo to GitHub (already done: `pisethSe/sala-management`).
+2. In [Render](https://dashboard.render.com): **New + → Blueprint** → connect the repo → Render reads `render.yaml`.
+3. Fill the two `sync: false` secrets when prompted:
+   - **sala-api → `DATABASE_URL`**: the Supabase session-pooler URL (same as `backend/.env.local`):
+     `postgresql://postgres.akcehyzvupivjiwqgclu:<url-encoded-password>@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres`
+   - **sala-frontend → `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`**: the publishable key from Supabase → Settings → API.
+4. **Apply** → Render builds and starts both services (the API's health check: `/api/health`).
+
+Notes:
+- The services are wired together: the frontend's `NEXT_PUBLIC_API_URL` points at `https://sala-api.onrender.com` and the API's `CORS_ORIGIN` at `https://sala-frontend.onrender.com`. If Render renames a service (name taken), update the matching value and redeploy.
+- **Redis is optional**: without `REDIS_URL` the API serves straight from PostgreSQL. To enable caching, create a Render **Key Value** (or Upstash) instance and set `REDIS_URL` on the API.
+- Free plans spin down after ~15 min idle — the first request after a nap takes 30–60s while the services wake.
+
 ## Environment
 
 - `DATABASE_URL` — Supabase PostgreSQL connection string (Session pooler `:5432` for long-running servers, Transaction pooler `:6543` for serverless). Special characters in the password must be URL-encoded.

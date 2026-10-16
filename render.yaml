@@ -1,0 +1,52 @@
+# Render Blueprint — Sala School Management
+#
+# Deploys both services from this repo in one apply:
+#   - sala-api       NestJS API   (backend/)
+#   - sala-frontend  Next.js UI   (frontend/)
+#
+# Deploy: Render dashboard → "New +" → Blueprint → connect pisethSe/sala-management → Apply.
+# You will be asked to fill the `sync: false` secrets (DATABASE_URL and the
+# Supabase publishable key) during apply — the exact values are in README.md
+# under "Render deployment".
+
+services:
+  # ------------------------- API (NestJS + Redis cache) -------------------------
+  - type: web
+    name: sala-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      # Supabase PostgreSQL — session pooler URL (same value as backend/.env.local).
+      # URL-encode special characters in the password ($ %3D %2B %2F %21).
+      - key: DATABASE_URL
+        sync: false
+      # The API verifies auth JWTs against this project's public JWKS.
+      - key: SUPABASE_URL
+        value: https://akcehyzvupivjiwqgclu.supabase.co
+      # Lock CORS to the frontend origin (must match the frontend service URL below).
+      - key: CORS_ORIGIN
+        value: https://sala-frontend.onrender.com
+      # Optional: set REDIS_URL (a Render Key Value or Upstash instance) to enable
+      # caching. Without it the API serves straight from PostgreSQL — everything works.
+
+  # ------------------------- Frontend (Next.js + Tailwind + shadcn/ui) -------------------------
+  - type: web
+    name: sala-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      # Public URL of the API service above — baked into the browser bundle at build time.
+      # If Render renames the service (name taken), update this value and redeploy.
+      - key: NEXT_PUBLIC_API_URL
+        value: https://sala-api.onrender.com
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        value: https://akcehyzvupivjiwqgclu.supabase.co
+      - key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
