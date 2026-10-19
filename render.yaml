@@ -41,9 +41,8 @@ services:
     # The app is 100% client-side: static hosting means no cold starts, ever.
     envVars:
       # Public URL of the API service above — baked into the browser bundle at build time.
-      # If Render renames the service (name taken), update this value and redeploy.
       - key: NEXT_PUBLIC_API_URL
-        value: https://sala-api.onrender.com
+        value: https://sala-api-eugg.onrender.com
       - key: NEXT_PUBLIC_SUPABASE_URL
         value: https://akcehyzvupivjiwqgclu.supabase.co
       - key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
